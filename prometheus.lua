@@ -467,7 +467,7 @@ end
 --   name: (string) short metric name without any labels.
 --   label_names: (array) a list of label keys.
 --   label_values: (array) a list of label values.
---   new_value: (number) value to add. Optional, defaults to 1.
+--   new_value: (number) value to set. 
 function Prometheus:set_max(name, label_names, label_values, new_value)
   local key = full_metric_name(name, label_names, label_values)
   if (new_value == nil or new_value < 0) then
