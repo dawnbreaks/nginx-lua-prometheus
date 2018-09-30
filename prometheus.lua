@@ -391,7 +391,7 @@ function Prometheus:histogram(name, description, label_names, buckets)
     return
   end
 
-  for _, suffix in ipairs({"", "_bucket", "_count", "_sum"}) do
+  for _, suffix in ipairs({"", "_bucket", "_count", "_sum", "_max"}) do
     if self.registered[name .. suffix] then
       self:log_error("Duplicate metric " .. name .. suffix)
       return
