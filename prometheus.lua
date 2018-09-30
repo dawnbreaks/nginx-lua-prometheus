@@ -460,6 +460,33 @@ function Prometheus:set(name, label_names, label_values, value)
   self:set_key(key, value)
 end
 
+
+-- set value if new_value is great than old value
+--
+-- Args:
+--   name: (string) short metric name without any labels.
+--   label_names: (array) a list of label keys.
+--   label_values: (array) a list of label values.
+--   new_value: (number) value to add. Optional, defaults to 1.
+function Prometheus:set_max(name, label_names, label_values, new_value)
+  local key = full_metric_name(name, label_names, label_values)
+  if (new_value == nil or new_value < 0) then
+    self:log_error_kv(key, new_value, "Value should not be nil or negative")
+    return
+  end
+
+  local old_value, err = self.dict:get(key)
+  if old_value == nil then
+    self:set_key(key, new_value)
+    return
+  end
+  if new_value >  old_value then
+    self:set_key(key, new_value)
+    return
+  end
+end
+
+
 -- Record a given value into a histogram metric.
 --
 -- Args:
@@ -470,8 +497,9 @@ end
 function Prometheus:histogram_observe(name, label_names, label_values, value)
   self:inc(name .. "_count", label_names, label_values, 1)
   self:inc(name .. "_sum", label_names, label_values, value)
-
-  -- we are going to mutate arrays of label names and values, so create a copy.
+  self:set_max(name .. "_max", label_names, label_values, value)
+  
+-- we are going to mutate arrays of label names and values, so create a copy.
   local l_names = copy_table(label_names)
   local l_values = copy_table(label_values)
 
